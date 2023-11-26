@@ -1,0 +1,28 @@
+name: CI - Languages
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "subjects/**"
+
+jobs:
+  benchmark:
+    name: Create Benchmark
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Install Tools
+        shell: bash
+        run: apt-get install -y jq hyperfine
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Run the benchmark suite
+        shell: bash
+        run: |
+          SHORT_COMMIT=$(git rev-parse --short=7 $GITHUB_SHA)
+          OUTPUT_FILE=$(bash command.sh ci bench $SHORT_COMMIT)
+          cat $OUTPUT_FILE
+
+          git checkout gh-pages
