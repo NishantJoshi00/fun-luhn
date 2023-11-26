@@ -13,16 +13,40 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
+
       - name: Install Tools
         shell: bash
-        run: apt-get install -y jq hyperfine
+        run: sudo apt-get update && sudo apt-get install -y jq
+
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
+
+      - run: cargo install hyperfine
+
       - name: Run the benchmark suite
         shell: bash
+        continue-on-error: ${{ false }}
         run: |
           SHORT_COMMIT=$(git rev-parse --short=7 $GITHUB_SHA)
           OUTPUT_FILE=$(bash command.sh ci bench $SHORT_COMMIT)
           cat $OUTPUT_FILE
 
           git checkout gh-pages
+
+          if git log --oneline | grep $GITHUB_SHA; then
+            echo "This commit has already been added"
+            exit 1
+          fi
+
+          jq --argjson current \
+            "$(cat $OUTPUT_FILE)" \
+            '. += $current' results.json \
+            > new-results.json
+          mv new-results.json results.json
+
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+          git add .
+          git commit -m "update($SHORT_COMMIT): $GITHUB_SHA"
+          git push
