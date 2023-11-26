@@ -1,0 +1,43 @@
+name: CI - Build & Test System
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    paths:
+      - "**"
+      - "!subjects/**"
+
+jobs:
+  Test-Suite:
+    name: Check Test-Suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Test Script
+        shell: bash
+        run: |
+          total=$(cat ./testcases/good ./testcases/bad | awk '{ print $1 }' | wc -l)
+          unique_total=$(cat ./testcases/good ./testcases/bad | awk '{ print $1 }' | sort | uniq | wc -l)
+          
+          if [[ "$total" = "$unique_total" ]]; then
+            echo "All the cards in the testcases are unique"
+            exit 0
+          else
+            echo "There might be duplicated in the testcases"
+            exit 1
+          fi
+        continue-on-error: ${{ false }}
+  Shell-Check:
+    name: Shellcheck for bash scripts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          ignore_paths: >-
+            subjects
+            testcases
+            .github

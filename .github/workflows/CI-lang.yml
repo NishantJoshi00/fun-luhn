@@ -1,0 +1,23 @@
+name: CI - Languages
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    paths:
+      - "subjects/**"
+
+
+jobs:
+  Rust:
+    name: Validate Rust Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Test Rust
+        shell: bash
+        run: bash command.sh test -l rust
+
