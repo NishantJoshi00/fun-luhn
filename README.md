@@ -7,7 +7,7 @@ Learn Languages and Luhn the fun way! A collections of various luhn implementati
 Currently the available implementations are as follows.
 
 - [x] Rust
-- [ ] C
+- [x] C
 - [ ] Haskell
 - [ ] OCaml
 
