@@ -7,7 +7,6 @@ on:
     paths:
       - "subjects/**"
 
-
 jobs:
   Rust:
     name: Validate Rust Code
@@ -30,3 +29,16 @@ jobs:
       - name: Test Rust
         shell: bash
         run: bash command.sh test -l c
+  Haskell:
+    name: Validate Haskell Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - uses: haskell-actions/setup@v2
+        with:
+          ghc-version: "9.2.8"
+          cabal-version: "3.6.2.0"
+      - name: Test Haskell
+        shell: bash
+        run: bash command.sh test -l haskell
