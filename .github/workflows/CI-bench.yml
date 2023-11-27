@@ -1,10 +1,14 @@
-name: CI - Languages
+name: CI - Benchmark
 on:
   push:
     branches:
       - main
     paths:
       - "subjects/**"
+      - "**/CI-bench.yml"
+
+permissions:
+  contents: write
 
 jobs:
   benchmark:
@@ -29,14 +33,17 @@ jobs:
         run: |
           SHORT_COMMIT=$(git rev-parse --short=7 $GITHUB_SHA)
           OUTPUT_FILE=$(bash command.sh ci bench $SHORT_COMMIT)
-          cat $OUTPUT_FILE
 
+          git fetch
           git checkout gh-pages
 
           if git log --oneline | grep $GITHUB_SHA; then
             echo "This commit has already been added"
             exit 1
           fi
+
+          cat $OUTPUT_FILE
+          cat results.json
 
           jq --argjson current \
             "$(cat $OUTPUT_FILE)" \
@@ -47,6 +54,6 @@ jobs:
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
 
-          git add .
+          git add results.json
           git commit -m "update($SHORT_COMMIT): $GITHUB_SHA"
           git push
