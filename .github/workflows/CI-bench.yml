@@ -27,6 +27,12 @@ jobs:
 
       - run: cargo install hyperfine
 
+      # For Haskell
+      - uses: haskell-actions/setup@v2
+        with:
+          ghc-version: "9.2.8"
+          cabal-version: "3.6.2.0"
+
       - name: Run the benchmark suite
         shell: bash
         continue-on-error: ${{ false }}
